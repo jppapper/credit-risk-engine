@@ -1,0 +1,20 @@
+# API
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Streaming
+confluent-kafka==2.3.0
+
+# Cache
+redis==5.0.4
+
+# Numerics
+numpy==1.26.4
+scipy==1.13.0
+
+# Environment
+python-dotenv==1.0.1
+
+# Testing
+pytest==8.2.0
+pytest-asyncio==0.23.6
