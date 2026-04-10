@@ -1,4 +1,4 @@
-import os
+eod_marks = '''import os
 from datetime import date
 from sqlalchemy.orm import Session
 from src.database.models import EODMark, engine
@@ -30,3 +30,7 @@ def get_prior_eod_mark(instrument_id: str, mark_date: date = None):
             EODMark.instrument_id == instrument_id,
             EODMark.mark_date < mark_date
         ).order_by(EODMark.mark_date.desc()).first()
+'''
+
+open('src/database/eod_marks.py', 'w').write(eod_marks)
+print('eod_marks.py written')

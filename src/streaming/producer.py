@@ -12,6 +12,7 @@ import numpy as np
 from confluent_kafka import Producer
 from dotenv import load_dotenv
 import os
+import datetime
 
 load_dotenv()
 
@@ -32,11 +33,15 @@ class MarketDataSimulator:
             self.instruments.append({
                 "instrument_id": f"{product}-{i:05d}",
                 "product": product,
-                "spread_bps": random.uniform(50, 500),   # initial spread
-                "rate": random.uniform(0.03, 0.07),       # initial rate
-                "maturity_years": random.choice([1, 2, 3, 5, 7, 10]),
+                "spread_bps": random.uniform(50, 500),
+                "rate": random.uniform(0.03, 0.07),
+                "maturity_date": (datetime.date.today() + datetime.timedelta(days=random.choice([365, 730, 1095, 1825, 2555, 3650]))).isoformat(),
+                "start_date": datetime.date.today().isoformat(),
+                "coupon_bps": random.choice([100, 500]) if product == "CDS" else random.uniform(200, 800),
+                "payment_frequency": 2,
+                "day_count_convention": "30/360",
                 "notional": random.choice([1_000_000, 5_000_000, 10_000_000, 25_000_000])
-            })
+                })
         return self.instruments
     
     def simulate_market_movement(self, instrument: dict) -> dict:
@@ -73,6 +78,3 @@ if __name__ == "__main__":
     simulator = MarketDataSimulator(num_instruments=NUM_INSTRUMENTS)
     simulator.build_universe()
     simulator.run_simulator()
-
-
-

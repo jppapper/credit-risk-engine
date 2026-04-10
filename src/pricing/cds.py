@@ -55,7 +55,7 @@ class CDSAnalytics:
         hazard_rate = self.calc_hazard_rate(par_coupon)
         payment_dates = self._build_payment_dates(end_date)
         premium_leg = 0
-        for date in  payment_dates:
+        for date in payment_dates:
             current_survival_rate = self.calc_survival_probability(hazard_rate, date.isoformat())
             df = self.calc_discount_factors(rate, date.isoformat())
             premium_leg += self.notional * current_survival_rate * df * (self.coupon_bps / 10000) * 0.25
