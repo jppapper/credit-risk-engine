@@ -68,10 +68,8 @@ class MarketDataSimulator:
                     value=json.dumps(updated),
                     callback=self.delivery_report
                 )
-
-            self.producer.poll(0)
+                self.producer.poll(0)
             time.sleep(0.1)
-
         self.producer.flush()
 
 if __name__ == "__main__":

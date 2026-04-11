@@ -89,5 +89,29 @@ class CDSAnalytics:
         carry = ((self.coupon_bps - par_coupon) / 10000) * self.notional * 1/360
         return carry
     
-
+    @staticmethod
+    def calculate(message: dict) -> dict:
+        cds = CDSAnalytics(
+            instrument_id=message["instrument_id"],
+            maturity_date=message["maturity_date"],
+            coupon_bps=message["coupon_bps"],
+            notional=message["notional"]
+        )
+        spread_bps = message["spread_bps"]
+        rate = message["rate"]
+        maturity_date = message["maturity_date"]
+        upfront = cds.calc_upfront(spread_bps, maturity_date, rate)
+        cs01 = cds.calc_cs01(spread_bps, maturity_date, rate)
+        ir01 = cds.calc_ir01(spread_bps, maturity_date, rate)
+        jump_to_default = cds.calc_jump_to_default(spread_bps, maturity_date, rate)
+        return {
+            "instrument_id": message["instrument_id"],
+            "product": "CDS",
+            "upfront": upfront,
+            "cs01": cs01,
+            "ir01": ir01,
+            "jump_to_default": jump_to_default,
+            "par_coupon": par_coupon,
+            "notional": message["notional"]
+        }
 

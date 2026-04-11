@@ -38,7 +38,20 @@ class RiskConsumer:
                         print(f"Kafka error: {msg.error()}")
                         break
                 message = json.loads(msg.value().decode("utf-8"))
-                print(f"Received: {message['instrument_id']}")
+                instrument_id = message["instrument_id"]
+                print(f"Received: {instrument_id}")
+
+                try:
+                    if message["product"] == "CDS":
+                        risk = CDSAnalytics.calculate(message)
+                    else:
+                        risk = BondAnalytics.calculate(message)
+
+                    self.redis.set(instrument_id, json.dumps(risk))
+                    print(f"Cached: {instrument_id}")
+                except Exception as e:
+                    print(f"Pricing error for {instrument_id}: {e}")
+
         except KeyboardInterrupt:
             print("Shutting down consumer")
         finally:

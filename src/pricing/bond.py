@@ -93,3 +93,26 @@ class BondAnalytics:
     def calc_carry(self):
         carry = (self.coupon_bps / 10000) * self.notional/360
         return carry
+    
+    @staticmethod
+    def calculate(message: dict) -> dict:
+        bond = BondAnalytics(
+            instrument_id=message["instrument_id"],
+            start_date=message["start_date"],
+            maturity_date=message["maturity_date"],
+            coupon_bps=message["coupon_bps"],
+            notional=message["notional"]
+        )
+        rate = message["rate"]
+        dirty_price = bond.calc_dirty_price(rate)
+        dv01 = bond.calc_dv01(rate)
+        duration = bond.calc_duration(rate)
+        return {
+            "instrument_id": message["instrument_id"],
+            "product": "BOND",
+            "dirty_price": dirty_price,
+            "dv01": dv01,
+            "duration": duration,
+            "rate": rate,
+            "notional": message["notional"]
+        }

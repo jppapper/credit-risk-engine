@@ -43,6 +43,7 @@ services:
       - .env
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_HOST=redis
 
   api:
     build: .
