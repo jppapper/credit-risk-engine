@@ -111,7 +111,7 @@ class CDSAnalytics:
             "cs01": cs01,
             "ir01": ir01,
             "jump_to_default": jump_to_default,
-            "par_coupon": par_coupon,
+            "spread_bps": spread_bps,
             "notional": message["notional"]
         }
 

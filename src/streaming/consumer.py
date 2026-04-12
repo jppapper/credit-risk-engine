@@ -18,7 +18,7 @@ class RiskConsumer:
     def __init__(self):
         self.consumer = Consumer({
             "bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
-            "group.id": "risk-consumer-group",
+            "group.id": "risk-consumer-group-v2",
             "auto.offset.reset": "earliest"
         })
         self.consumer.subscribe([TOPIC_CDS, TOPIC_BONDS])

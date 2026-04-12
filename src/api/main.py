@@ -27,13 +27,6 @@ def health():
         "version": "1.0.0"
     }
 
-@app.get("/risk/{instrument_id}")
-def get_risk(instrument_id: str):
-    result = redis_client.get(instrument_id)
-    if not result:
-        raise HTTPException(status_code=404, detail=f"No risk data found for {instrument_id}")
-    return json.loads(result)
-
 @app.get("/risk/portfolio")
 def get_portfolio_risk():
     keys = redis_client.keys("CDS-*") + redis_client.keys("BOND-*")
@@ -56,6 +49,37 @@ def get_portfolio_risk():
         "position_count": position_count,
         "total_cs01": total_cs01,
         "total_dv01": total_dv01
+    }
+
+@app.get("/risk/{instrument_id}")
+def get_risk(instrument_id: str):
+    result = redis_client.get(instrument_id)
+    if not result:
+        raise HTTPException(status_code=404, detail=f"No risk data found for {instrument_id}")
+    return json.loads(result)
+
+@app.get("/pnl/portfolio")
+def get_portfolio_pnl():
+    keys = redis_client.keys("CDS-*") + redis_client.keys("BOND-*")
+    if not keys:
+        raise HTTPException(status_code=404, detail="No risk data found in cache")
+    
+    total_pnl = 0
+    position_count = 0
+    errors = 0
+
+    for key in keys:
+        try:
+            result = get_pnl(key)
+            total_pnl += result["pnl"]
+            position_count += 1
+        except HTTPException:
+            errors += 1
+
+    return {
+        "position_count": position_count,
+        "total_pnl": total_pnl,
+        "errors": errors
     }
 
 @app.get("/pnl/{instrument_id}")
@@ -83,29 +107,6 @@ def get_pnl(instrument_id: str):
         "prior_mark": prior_mark.upfront or prior_mark.dirty_price
     }
 
-@app.get("/pnl/portfolio")
-def get_portfolio_pnl():
-    keys = redis_client.keys("CDS-*") + redis_client.keys("BOND-*")
-    if not keys:
-        raise HTTPException(status_code=404, detail="No risk data found in cache")
-    
-    total_pnl = 0
-    position_count = 0
-    errors = 0
-
-    for key in keys:
-        try:
-            result = get_pnl(key)
-            total_pnl += result["pnl"]
-            position_count += 1
-        except HTTPException:
-            errors += 1
-
-    return {
-        "position_count": position_count,
-        "total_pnl": total_pnl,
-        "errors": errors
-    }
 
 if __name__ == "__main__":
     import uvicorn
