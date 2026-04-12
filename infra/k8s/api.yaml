@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: api
-        image: credit-risk-engine-api:latest
-        imagePullPolicy: Never
+        image: 284938186002.dkr.ecr.us-east-1.amazonaws.com/credit-risk-engine-api:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         env:
@@ -33,8 +33,7 @@ metadata:
 spec:
   selector:
     app: api
-  type: NodePort
+  type: LoadBalancer
   ports:
   - port: 8000
     targetPort: 8000
-    nodePort: 30080

@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: consumer
-        image: credit-risk-engine-consumer:latest
-        imagePullPolicy: Never
+        image: 284938186002.dkr.ecr.us-east-1.amazonaws.com/credit-risk-engine-consumer:latest
+        imagePullPolicy: Always
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: kafka:9092
