@@ -114,4 +114,3 @@ class CDSAnalytics:
             "spread_bps": spread_bps,
             "notional": message["notional"]
         }
-

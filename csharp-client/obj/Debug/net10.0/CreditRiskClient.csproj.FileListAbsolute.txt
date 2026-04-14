@@ -1,0 +1,15 @@
+C:\Users\james\credit-risk-engine\csharp-client\bin\Debug\net10.0\CreditRiskClient.exe
+C:\Users\james\credit-risk-engine\csharp-client\bin\Debug\net10.0\CreditRiskClient.deps.json
+C:\Users\james\credit-risk-engine\csharp-client\bin\Debug\net10.0\CreditRiskClient.runtimeconfig.json
+C:\Users\james\credit-risk-engine\csharp-client\bin\Debug\net10.0\CreditRiskClient.dll
+C:\Users\james\credit-risk-engine\csharp-client\bin\Debug\net10.0\CreditRiskClient.pdb
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.AssemblyInfoInputs.cache
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.AssemblyInfo.cs
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.csproj.CoreCompileInputs.cache
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.sourcelink.json
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.dll
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\refint\CreditRiskClient.dll
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.pdb
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\CreditRiskClient.genruntimeconfig.cache
+C:\Users\james\credit-risk-engine\csharp-client\obj\Debug\net10.0\ref\CreditRiskClient.dll

@@ -4,6 +4,7 @@ import redis
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 from src.database.eod_marks import get_prior_eod_mark
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
@@ -11,6 +12,13 @@ REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 
 app = FastAPI(title="Credit Risk Engine", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 @app.get("/health")

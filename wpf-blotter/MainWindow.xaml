@@ -1,0 +1,68 @@
+﻿<Window x:Class="wpf_blotter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Credit Risk Engine — Live Blotter" 
+        Height="600" Width="1000"
+        Background="#0d1117">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Credit Risk Engine — Live Blotter" 
+                   FontSize="20" FontWeight="Medium" Foreground="#e6edf3" Margin="0,0,0,20"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
+            <Border Background="#161b22" BorderBrush="#21262d" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="POSITIONS" FontSize="11" Foreground="#7d8590"/>
+                    <TextBlock x:Name="PositionCount" Text="—" FontSize="28" Foreground="#58a6ff"/>
+                </StackPanel>
+            </Border>
+            <Border Background="#161b22" BorderBrush="#21262d" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="TOTAL CS01" FontSize="11" Foreground="#7d8590"/>
+                    <TextBlock x:Name="TotalCs01" Text="—" FontSize="28" Foreground="#3fb950"/>
+                </StackPanel>
+            </Border>
+            <Border Background="#161b22" BorderBrush="#21262d" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="TOTAL DV01" FontSize="11" Foreground="#7d8590"/>
+                    <TextBlock x:Name="TotalDv01" Text="—" FontSize="28" Foreground="#f85149"/>
+                </StackPanel>
+            </Border>
+            <Border Background="#161b22" BorderBrush="#21262d" BorderThickness="1" CornerRadius="8" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="STATUS" FontSize="11" Foreground="#7d8590"/>
+                    <TextBlock x:Name="Status" Text="Connecting..." FontSize="28" Foreground="#3fb950"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" x:Name="PositionsGrid"
+                  Background="#161b22" Foreground="#e6edf3"
+                  BorderBrush="#21262d" BorderThickness="1"
+                  RowBackground="#161b22" AlternatingRowBackground="#0d1117"
+                  GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#21262d"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  HeadersVisibility="Column">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#0d1117"/>
+                    <Setter Property="Foreground" Value="#7d8590"/>
+                    <Setter Property="Padding" Value="8,6"/>
+                    <Setter Property="FontSize" Value="12"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Instrument" Binding="{Binding InstrumentId}" Width="150"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding Product}" Width="80"/>
+                <DataGridTextColumn Header="Notional" Binding="{Binding NotionalFormatted}" Width="120"/>
+                <DataGridTextColumn Header="CS01 / DV01" Binding="{Binding RiskFormatted}" Width="120"/>
+                <DataGridTextColumn Header="Spread / Rate" Binding="{Binding MarketFormatted}" Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

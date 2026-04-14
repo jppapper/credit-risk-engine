@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Risk Engine — Live Blotter</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; color: #0f172a; min-height: 100vh; }
+  header { padding: 18px 32px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #ffffff; }
+  header h1 { font-size: 17px; font-weight: 600; color: #0f172a; letter-spacing: 0.01em; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 12px; display: flex; align-items: center; gap: 6px; }
+  .badge.live { background: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+  .badge.error { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+  .badge.connecting { background: #ede9fe; color: #7c3aed; border: 1px solid #c4b5fd; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 20px 32px; }
+  .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .card.blue::before { background: #3b82f6; }
+  .card.green::before { background: #16a34a; }
+  .card.red::before { background: #dc2626; }
+  .card.purple::before { background: #7c3aed; }
+  .card-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .card-value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .card.blue .card-value { color: #2563eb; }
+  .card.green .card-value { color: #16a34a; }
+  .card.red .card-value { color: #dc2626; }
+  .card.purple .card-value { color: #7c3aed; }
+  .card-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+  .controls { padding: 0 32px 14px; display: flex; align-items: center; gap: 12px; }
+  .search { flex: 1; max-width: 300px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 12px; color: #0f172a; font-size: 13px; outline: none; }
+  .search:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px #bfdbfe; }
+  .search::placeholder { color: #94a3b8; }
+  .filter-btn { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 14px; color: #64748b; font-size: 12px; cursor: pointer; }
+  .filter-btn.active { background: #eff6ff; color: #2563eb; border-color: #93c5fd; font-weight: 500; }
+  .count { font-size: 12px; color: #94a3b8; margin-left: auto; }
+  .section { padding: 0 32px 32px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  thead tr { border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+  th { text-align: left; padding: 10px 14px; color: #64748b; font-weight: 500; cursor: pointer; user-select: none; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+  th:hover { color: #0f172a; }
+  th.sorted { color: #2563eb; }
+  td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; font-variant-numeric: tabular-nums; color: #334155; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .tag-cds { background: #dbeafe; color: #1d4ed8; }
+  .tag-bond { background: #ede9fe; color: #6d28d9; }
+  .pos { color: #16a34a; font-weight: 500; }
+  .neg { color: #dc2626; font-weight: 500; }
+  .neutral { color: #64748b; }
+  .instrument { color: #0f172a; font-weight: 500; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Credit Risk Engine — Live Blotter</h1>
+  <div id="badge" class="badge connecting"><div class="dot"></div><span id="status">Connecting...</span></div>
+</header>
+<div class="grid">
+  <div class="card blue"><div class="card-label">Positions</div><div class="card-value" id="position-count">—</div><div class="card-sub">total instruments</div></div>
+  <div class="card green"><div class="card-label">Total CS01</div><div class="card-value" id="total-cs01">—</div><div class="card-sub">USD per bp · CDS book</div></div>
+  <div class="card red"><div class="card-label">Total DV01</div><div class="card-value" id="total-dv01">—</div><div class="card-sub">USD per bp · bond book</div></div>
+  <div class="card purple"><div class="card-label">Last Updated</div><div class="card-value" id="last-updated" style="font-size:16px;padding-top:6px;">—</div><div class="card-sub">refreshing every 2s</div></div>
+</div>
+<div class="controls">
+  <input class="search" id="search" placeholder="Search instrument ID..." oninput="renderTable()">
+  <button class="filter-btn active" id="btn-all" onclick="setFilter('all')">All</button>
+  <button class="filter-btn" id="btn-bond" onclick="setFilter('BOND')">Bonds</button>
+  <button class="filter-btn" id="btn-cds" onclick="setFilter('CDS')">CDS</button>
+  <span class="count" id="row-count"></span>
+</div>
+<div class="section">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sortBy('instrument_id')" id="h-instrument_id">Instrument ↕</th>
+        <th onclick="sortBy('product')" id="h-product">Type ↕</th>
+        <th onclick="sortBy('notional')" id="h-notional">Notional ↕</th>
+        <th onclick="sortBy('risk')" id="h-risk">CS01 / DV01 ↕</th>
+        <th onclick="sortBy('market')" id="h-market">Spread / Rate ↕</th>
+        <th onclick="sortBy('price')" id="h-price">Price / Upfront ↕</th>
+      </tr>
+    </thead>
+    <tbody id="positions-table"></tbody>
+  </table>
+</div>
+<script>
+const API = 'http://localhost:8000';
+let allPositions = [];
+let sortCol = 'instrument_id';
+let sortDir = 1;
+let filterType = 'all';
+const SAMPLE_IDS = [
+  'BOND-00001','BOND-00003','BOND-00005','BOND-00007','BOND-00009','BOND-00011','BOND-00013','BOND-00015','BOND-00017','BOND-00019',
+  'BOND-00021','BOND-00023','BOND-00025','BOND-00027','BOND-00029','CDS-00000','CDS-00002','CDS-00004','CDS-00006','CDS-00008',
+  'CDS-00010','CDS-00012','CDS-00014','CDS-00016','CDS-00018','CDS-00020','CDS-00022','CDS-00024','CDS-00026','CDS-00028'
+];
+function fmt(n,d=2){return n==null?'—':Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtM(n){return n?'$'+fmt(n/1e6,1)+'M':'—';}
+function sortBy(col){
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
+  document.querySelectorAll('th').forEach(th=>th.classList.remove('sorted'));
+  document.getElementById('h-'+col).classList.add('sorted');
+  renderTable();
+}
+function setFilter(type){
+  filterType=type;
+  ['all','bond','cds'].forEach(t=>document.getElementById('btn-'+t).classList.remove('active'));
+  document.getElementById('btn-'+(type==='all'?'all':type.toLowerCase())).classList.add('active');
+  renderTable();
+}
+function getSortVal(p,col){
+  if(col==='instrument_id')return p.instrument_id;
+  if(col==='product')return p.product;
+  if(col==='notional')return p.notional||0;
+  if(col==='risk')return p.product==='CDS'?(p.cs01||0):(p.dv01||0);
+  if(col==='market')return p.product==='CDS'?(p.spread_bps||0):(p.rate||0);
+  if(col==='price')return p.product==='CDS'?(p.upfront||0):(p.dirty_price||0);
+  return 0;
+}
+function renderTable(){
+  const search=document.getElementById('search').value.toLowerCase();
+  let filtered=allPositions.filter(p=>{
+    if(filterType!=='all'&&p.product!==filterType)return false;
+    if(search&&!p.instrument_id.toLowerCase().includes(search))return false;
+    return true;
+  });
+  filtered.sort((a,b)=>{const av=getSortVal(a,sortCol),bv=getSortVal(b,sortCol);return av<bv?-sortDir:av>bv?sortDir:0;});
+  document.getElementById('row-count').textContent=filtered.length+' positions';
+  const tbody=document.getElementById('positions-table');
+  tbody.innerHTML=filtered.map(p=>{
+    const risk=p.product==='CDS'?p.cs01:p.dv01;
+    const riskFmt=p.product==='CDS'?fmt(p.cs01):fmt(p.dv01,4);
+    const riskClass=risk>0?'pos':risk<0?'neg':'neutral';
+    const market=p.product==='CDS'?fmt(p.spread_bps)+' bps':fmt(p.rate*100,2)+'%';
+    const price=p.product==='CDS'?(p.upfront?'$'+fmt(p.upfront/1000,1)+'K':'—'):(p.dirty_price?fmt(p.dirty_price,2):'—');
+    return`<tr><td class="instrument">${p.instrument_id}</td><td><span class="tag tag-${p.product.toLowerCase()}">${p.product}</span></td><td>${fmtM(p.notional)}</td><td class="${riskClass}">${riskFmt}</td><td class="neutral">${market}</td><td class="neutral">${price}</td></tr>`;
+  }).join('')||'<tr><td colspan="6" style="padding:32px;color:#94a3b8;text-align:center">No positions — run the producer</td></tr>';
+}
+async function refresh(){
+  try{
+    const portfolio=await(await fetch(API+'/risk/portfolio')).json();
+    document.getElementById('position-count').textContent=portfolio.position_count.toLocaleString();
+    document.getElementById('total-cs01').textContent='$'+fmt(portfolio.total_cs01/1e6,1)+'M';
+    document.getElementById('total-dv01').textContent='$'+fmt(portfolio.total_dv01,0);
+    document.getElementById('last-updated').textContent=new Date().toLocaleTimeString();
+    document.getElementById('badge').className='badge live';
+    document.getElementById('status').textContent='Live';
+    const results=await Promise.all(SAMPLE_IDS.map(async id=>{try{const r=await fetch(API+'/risk/'+id);return r.ok?r.json():null;}catch{return null;}}));
+    allPositions=results.filter(Boolean);
+    renderTable();
+  }catch(e){
+    document.getElementById('badge').className='badge error';
+    document.getElementById('status').textContent='Disconnected';
+  }
+}
+refresh();
+setInterval(refresh,2000);
+</script>
+</body>
+</html>
