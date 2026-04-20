@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.Windows.Input;
+using System.Linq;
 
 namespace wpf_blotter
 {
@@ -62,7 +64,7 @@ namespace wpf_blotter
 
     public partial class MainWindow : Window
     {
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient _client = new HttpClient() { Timeout = TimeSpan.FromSeconds(60) };
         private const string API = "http://localhost:8000";
         private ObservableCollection<PositionRow> _positions = new ObservableCollection<PositionRow>();
         
@@ -70,6 +72,7 @@ namespace wpf_blotter
             "BOND-00001", "BOND-00003", "BOND-00005", "BOND-00007", "BOND-00009",
             "CDS-00000", "CDS-00002", "CDS-00004", "CDS-00006", "CDS-00008"
         };
+        private bool _isLookupMode = false;
 
         public MainWindow()
         {
@@ -77,51 +80,110 @@ namespace wpf_blotter
             PositionsGrid.ItemsSource = _positions;
             StartRefresh();
         }
+            private async void LookupButton_Click(object sender, RoutedEventArgs e)
+{
+    await LookupInstrument();
+}
+
+private async void SearchBox_KeyDown(object sender, KeyEventArgs e)
+{
+    if (e.Key == Key.Enter)
+        await LookupInstrument();
+}
+
+private async Task LookupInstrument()
+{
+    string id = SearchBox.Text.Trim().ToUpper();
+    if (string.IsNullOrEmpty(id)) return;
+
+    _isLookupMode = true;
+
+    try
+    {
+        string json = await _client.GetStringAsync($"{API}/risk/{id}");
+        var risk = JsonSerializer.Deserialize<RiskData>(json);
+
+        _positions.Clear();
+        _positions.Add(new PositionRow
+        {
+            InstrumentId = risk.InstrumentId,
+            Product = risk.Product,
+            NotionalFormatted = $"${risk.Notional / 1000000:F1}M",
+            RiskFormatted = risk.Product == "CDS" ? $"{risk.Cs01:F2}" : $"{risk.Dv01:F4}",
+            MarketFormatted = risk.Product == "CDS" ? $"{risk.SpreadBps:F1} bps" : $"{risk.Rate * 100:F2}%"
+        });
+
+        Status.Text = $"Found: {id}";
+    }
+    catch (Exception ex)
+    {
+        Status.Text = ex.Message;
+        _isLookupMode = false;
+    }
+}
+private void ClearButton_Click(object sender, RoutedEventArgs e)
+{
+    _isLookupMode = false;
+    SearchBox.Text = "";
+    Status.Text = "Live";
+}
 
         private void StartRefresh()
         {
             var timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(2);
+            timer.Interval = TimeSpan.FromSeconds(10);
             timer.Tick += async (s, e) => await RefreshData();
             timer.Start();
             _ = RefreshData();
+            _ = RefreshPortfolio();
         }
 
-        private async Task RefreshData()
+private async Task RefreshData()
+{
+    if (_isLookupMode) return;
+    try
+    {
+        foreach (var id in SampleIds)
         {
             try
             {
-                string portfolioJson = await _client.GetStringAsync($"{API}/risk/portfolio");
-                var portfolio = JsonSerializer.Deserialize<PortfolioRisk>(portfolioJson);
-
-                PositionCount.Text = portfolio.PositionCount.ToString("N0");
-                TotalCs01.Text = $"${portfolio.TotalCs01/1000000:F1}M";
-                TotalDv01.Text = $"${portfolio.TotalDv01:N0}";
-                Status.Text = "Live";
-
-                _positions.Clear();
-                foreach (var id in SampleIds)
+                string riskJson = await _client.GetStringAsync($"{API}/risk/{id}");
+                var risk = JsonSerializer.Deserialize<RiskData>(riskJson);
+                var existing = _positions.FirstOrDefault(p => p.InstrumentId == id);
+                if (existing != null) _positions.Remove(existing);
+                _positions.Add(new PositionRow
                 {
-                    try
-                    {
-                        string riskJson = await _client.GetStringAsync($"{API}/risk/{id}");
-                        var risk = JsonSerializer.Deserialize<RiskData>(riskJson);
-                        _positions.Add(new PositionRow
-                        {
-                            InstrumentId = risk.InstrumentId,
-                            Product = risk.Product,
-                            NotionalFormatted = $"${risk.Notional/1000000:F1}M",
-                            RiskFormatted = risk.Product == "CDS" ? $"{risk.Cs01:F2}" : $"{risk.Dv01:F4}",
-                            MarketFormatted = risk.Product == "CDS" ? $"{risk.SpreadBps:F1} bps" : $"{risk.Rate*100:F2}%"
-                        });
-                    }
-                    catch { }
-                }
+                    InstrumentId = risk.InstrumentId,
+                    Product = risk.Product,
+                    NotionalFormatted = $"${risk.Notional/1000000:F1}M",
+                    RiskFormatted = risk.Product == "CDS" ? $"{risk.Cs01:F2}" : $"{risk.Dv01:F4}",
+                    MarketFormatted = risk.Product == "CDS" ? $"{risk.SpreadBps:F1} bps" : $"{risk.Rate*100:F2}%"
+                });
             }
-            catch (Exception ex)
-            {
-                Status.Text = "Error";
-            }
+            catch { }
         }
+        Status.Text = "Live";
     }
+    catch (Exception ex)
+    {
+        Status.Text = ex.Message;
+    }
+}
+private async Task RefreshPortfolio()
+{
+    while (true)
+    {
+        try
+        {
+            string portfolioJson = await _client.GetStringAsync($"{API}/risk/portfolio");
+            var portfolio = JsonSerializer.Deserialize<PortfolioRisk>(portfolioJson);
+            PositionCount.Text = portfolio.PositionCount.ToString("N0");
+            TotalCs01.Text = $"${portfolio.TotalCs01/1000000:F1}M";
+            TotalDv01.Text = $"${portfolio.TotalDv01:N0}";
+        }
+        catch { }
+        await Task.Delay(60000);
+    }
+}
+  }
 }

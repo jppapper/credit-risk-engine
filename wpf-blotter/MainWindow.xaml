@@ -8,6 +8,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -41,7 +42,21 @@
             </Border>
         </StackPanel>
 
-        <DataGrid Grid.Row="2" x:Name="PositionsGrid"
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
+    <TextBox x:Name="SearchBox" Width="200" Margin="0,0,10,0" 
+             Background="#161b22" Foreground="#e6edf3" 
+             BorderBrush="#21262d" Padding="8,6"
+             KeyDown="SearchBox_KeyDown"/>
+    <Button Content="Lookup" Click="LookupButton_Click"
+            Background="#1f6feb" Foreground="#e6edf3"
+            BorderThickness="0" Padding="12,6"/>
+    <Button Content="Clear" Click="ClearButton_Click"
+        Background="#e85d04" Foreground="#e6edf3"
+        BorderThickness="0" Padding="12,6" Margin="8,0,0,0"/>
+</StackPanel>
+
+        <DataGrid Grid.Row="3" x:Name="PositionsGrid"
+                  
                   Background="#161b22" Foreground="#e6edf3"
                   BorderBrush="#21262d" BorderThickness="1"
                   RowBackground="#161b22" AlternatingRowBackground="#0d1117"

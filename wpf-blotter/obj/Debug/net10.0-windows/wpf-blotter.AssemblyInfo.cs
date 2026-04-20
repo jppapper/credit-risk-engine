@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("wpf-blotter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74b469c5c0f78a1a266a3be1519776a3f4aa7078")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5b0ef5236b02aa6614c9e33350949167049f2fee")]
 [assembly: System.Reflection.AssemblyProductAttribute("wpf-blotter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("wpf-blotter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
