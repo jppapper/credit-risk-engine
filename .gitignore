@@ -24,3 +24,9 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# WPF build output
+wpf-blotter/bin/
+wpf-blotter/obj/
+csharp-client/bin/
+csharp-client/obj/
