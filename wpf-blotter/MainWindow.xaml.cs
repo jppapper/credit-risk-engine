@@ -18,6 +18,7 @@ namespace wpf_blotter
         public string NotionalFormatted { get; set; }
         public string RiskFormatted { get; set; }
         public string MarketFormatted { get; set; }
+        public string RiskColor { get; set; }
     }
 
     public class PortfolioRisk
@@ -65,7 +66,7 @@ namespace wpf_blotter
     public partial class MainWindow : Window
     {
         private static readonly HttpClient _client = new HttpClient() { Timeout = TimeSpan.FromSeconds(60) };
-        private const string API = "http://localhost:8000";
+        private const string API = "http://ac9d83ced71bd4be5a23726c4f357a7a-1203455886.us-east-1.elb.amazonaws.com:8000";
         private ObservableCollection<PositionRow> _positions = new ObservableCollection<PositionRow>();
         
         private static readonly string[] SampleIds = {
@@ -157,7 +158,8 @@ private async Task RefreshData()
                     Product = risk.Product,
                     NotionalFormatted = $"${risk.Notional/1000000:F1}M",
                     RiskFormatted = risk.Product == "CDS" ? $"{risk.Cs01:F2}" : $"{risk.Dv01:F4}",
-                    MarketFormatted = risk.Product == "CDS" ? $"{risk.SpreadBps:F1} bps" : $"{risk.Rate*100:F2}%"
+                    MarketFormatted = risk.Product == "CDS" ? $"{risk.SpreadBps:F1} bps" : $"{risk.Rate*100:F2}%",
+                    RiskColor = (risk.Product == "CDS" ? (risk.Cs01 ?? 0) : (risk.Dv01 ?? 0)) > 0 ? "#3fb950" : "#f85149"
                 });
             }
             catch { }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CreditRiskClient")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5b0ef5236b02aa6614c9e33350949167049f2fee")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f5d209132dfb5499e4a1109eab451814bcd6220b")]
 [assembly: System.Reflection.AssemblyProductAttribute("CreditRiskClient")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CreditRiskClient")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

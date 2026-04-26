@@ -14,6 +14,7 @@ spec:
     spec:
       containers:
       - name: consumer
+        command: ["python", "-m", "src.streaming.consumer"]
         image: 284938186002.dkr.ecr.us-east-1.amazonaws.com/credit-risk-engine-consumer:latest
         imagePullPolicy: Always
         env:
